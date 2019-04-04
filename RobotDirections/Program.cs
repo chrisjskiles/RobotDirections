@@ -34,7 +34,7 @@ namespace RobotDirections {
 
                     string shortestPath = FindShortestPath(new List<string>(splitLine[2].Split(',')));
 
-                    Console.WriteLine(String.Format("{0};{1};{2}", splitLine[0], splitLine[1], shortestPath));
+                    Console.WriteLine(String.Format("{0};{1};{2}", splitLine[0], splitLine[1], shortestPath));  //print results
                 }
             }
 
@@ -84,22 +84,37 @@ namespace RobotDirections {
 
             //calculate shortest path
             string shortestPath = String.Empty;
+
+            //handle north/south translation and set direction for future reference
             if (northSouth < 0) {
-                shortestPath += "L" + Math.Abs(northSouth) + ",";
+                shortestPath += "L" + Math.Abs(northSouth);
                 currentHeading = Compass.South;
             }
 
             else if (northSouth > 0) {
-                shortestPath += "R" + Math.Abs(northSouth) + ",";
+                shortestPath += "R" + northSouth;
                 currentHeading = Compass.North;
             }
 
+            //if no north/south translation, simply face the direction and head that way
+            else {
+                if (eastWest < 0) {
+                    return "R0,L" + Math.Abs(eastWest);   //since there is no instruction to go straight, if you need to head west you must turn once first
+                }
+                
+                else if (eastWest > 0) {
+                    return "R0,R" + Math.Abs(eastWest); //do a 180
+                }
+            }
+
+
+            //handle east/west translation
             if ((currentHeading == Compass.North && eastWest < 0) || (currentHeading == Compass.South && eastWest > 0)) {
-                shortestPath += "L" + Math.Abs(eastWest) + ",";
+                shortestPath += ",L" + Math.Abs(eastWest);
             }            
 
             else if (eastWest != 0) {
-                shortestPath += "R" + Math.Abs(eastWest) + ",";
+                shortestPath += ",R" + Math.Abs(eastWest);
             }
 
             return shortestPath;
